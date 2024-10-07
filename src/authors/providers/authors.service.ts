@@ -4,6 +4,9 @@ import { Author } from '../author.entity';
 import { Auth, Repository } from 'typeorm';
 import { CreateAuthorDto } from '../dtos/create-author.dto';
 import { UpdateAuthorDto } from '../dtos/update-authos.dto';
+import { Book } from 'src/books/book.entity';
+import { plainToInstance } from 'class-transformer';
+import { AuthorDto } from '../dtos/author.dto';
 
 @Injectable()
 export class AuthorsService {
@@ -13,16 +16,19 @@ export class AuthorsService {
   ) {}
 
   public async getAllAuthors(): Promise<Author[]> {
-    const authors = await this.authorsRepository.find();
-    return authors;
+    const authors = await this.authorsRepository.find({ relations: ['books'] });
+    return plainToInstance(AuthorDto, authors);
   }
 
   public async getSingleAuthor(id: number): Promise<Author> {
-    const author = await this.authorsRepository.findOneBy({ id });
+    const author = await this.authorsRepository.findOne({
+      where: { id },
+      relations: ['books'],
+    });
     if (!author) {
       throw new NotFoundException(`Author with ID: ${id} not found`);
     }
-    return author;
+    return plainToInstance(AuthorDto, author);
   }
 
   public async createAuthor(createAuthorDto: CreateAuthorDto): Promise<Author> {

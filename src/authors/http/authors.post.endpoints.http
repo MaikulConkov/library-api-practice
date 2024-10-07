@@ -1,0 +1,8 @@
+POST http://localhost:3000/authors
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "birthdate": "1990-05-12T00:00:00Z",
+  "bio": "John is a famous author known for his mystery novels."
+}

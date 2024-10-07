@@ -1,0 +1,9 @@
+POST http://localhost:3000/books
+Content-Type: application/json
+
+{
+  "title": "What's New in NestJS",
+  "description": "This book covers the latest features in NestJS.",
+  "publicationDate": "2024-03-16T07:46:32+0000",  
+  "authorId": 1  
+}
