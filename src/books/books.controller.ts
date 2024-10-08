@@ -31,6 +31,11 @@ export class BooksController {
     return this.booksService.createBook(createBookDto);
   }
 
+  @Post('/bulk')
+  public async createMultipleBooks(@Body() createBookDtos: CreateBookDto[]) {
+    return this.booksService.createMultipleBooks(createBookDtos);
+  }
+
   @Patch('/:id')
   public updateBook(
     @Param('id', ParseIntPipe) id: number,

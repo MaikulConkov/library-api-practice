@@ -5,7 +5,7 @@ import {
   RequestTimeoutException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Book } from '../book.entity';
 import { Author } from 'src/authors/author.entity';
 import { CreateBookDto } from '../dtos/create-book.dto';
@@ -19,6 +19,8 @@ export class BooksService {
 
     @InjectRepository(Author)
     private readonly authorsRepository: Repository<Author>,
+
+    private readonly dataSource: DataSource,
   ) {}
 
   public async getAllBooks() {
@@ -63,6 +65,44 @@ export class BooksService {
         'Unable to process your request at the moment, please try again later.',
         { description: 'Error saving the book in the database.' },
       );
+    }
+  }
+
+  public async createMultipleBooks(
+    createBooksDtos: CreateBookDto[],
+  ): Promise<Book[]> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const createdBooks: Book[] = [];
+
+      for (let createBookDto of createBooksDtos) {
+        const { authorId } = createBookDto;
+
+        const author = await this.authorsRepository.findOneBy({ id: authorId });
+        if (!author) {
+          throw new Error(`Author with id ${authorId} bot found`);
+        }
+
+        const newBook = this.booksRepository.create({
+          title: createBookDto.title,
+          description: createBookDto.description,
+          publicationDate: createBookDto.publicationDate,
+          author,
+        });
+
+        const savedBook = await queryRunner.manager.save(newBook);
+        createdBooks.push(savedBook);
+      }
+      await queryRunner.commitTransaction();
+      return createdBooks;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw new Error(`Transaction failed: ${error.message}`);
+    } finally {
+      await queryRunner.release();
     }
   }
 

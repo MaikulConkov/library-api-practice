@@ -7,3 +7,27 @@ Content-Type: application/json
   "publicationDate": "2024-03-16T07:46:32+0000",  
   "authorId": 1  
 }
+
+POST http://localhost:3000/books/bulk
+Content-Type: application/json
+
+[
+  {
+    "title": "Book 1",
+    "description": "Description for Book 1",
+    "publicationDate": "2024-01-01T00:00:00Z",
+    "authorId": 1
+  },
+  {
+    "title": "Book 2",
+    "description": "Description for Book 2",
+    "publicationDate": "2024-02-01T00:00:00Z",
+    "authorId": 1
+  },
+  {
+    "title": "Book 3",
+    "description": "Description for Book 3",
+    "publicationDate": "2024-03-01T00:00:00Z",
+    "authorId": 1
+  }
+]
